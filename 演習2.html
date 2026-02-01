@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Clock</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Clock Styling */
+        #digital-clock {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Cat Container Styling */
+        .cat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+            cursor: pointer; /* Indicates it is clickable */
+        }
+
+        /* Image Styling with Fade Transition */
+        #cat-image {
+            max-width: 100%;
+            max-height: 100%;
+            opacity: 0;
+            transition: opacity 1s; /* Smooth fade effect */
+        }
+
+        /* Class to trigger fade-in */
+        #cat-image.show {
+            opacity: 1;
+        }
+
+        .note {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="digital-clock">00:00:00</div>
+
+    <div class="cat-container" onclick="getCatImage()">
+        <img id="cat-image" src="" alt="Loading Cat...">
+    </div>
+
+    <p class="note">5秒ごとに猫が入れ替わります。画像クリックでも更新されます。</p>
+
+    <script>
+        // --- Clock Functionality ---
+        const clockDiv = document.getElementById('digital-clock');
+
+        function updateClock() {
+            const now = new Date();
+            // Displays time in localized string format
+            clockDiv.innerText = now.toLocaleTimeString();
+        }
+
+        // Update clock every 1 second (1000ms)
+        setInterval(updateClock, 1000);
+        updateClock(); // Initialize immediately
+
+
+        // --- Cat API Functionality ---
+        const catImg = document.getElementById('cat-image');
+
+        async function getCatImage() {
+            // 1. Hide image for fade-out effect
+            catImg.classList.remove('show');
+
+            try {
+                // 2. Fetch data from The Cat API
+                const res = await fetch("https://api.thecatapi.com/v1/images/search");
+                const data = await res.json();
+
+                // 3. Set up onload event to show image only after it has downloaded
+                catImg.onload = function() {
+                    catImg.classList.add('show');
+                };
+
+                // 4. Update the image source
+                catImg.src = data[0].url;
+
+            } catch (error) {
+                console.error("Error fetching cat image:", error);
+            }
+        }
+
+        // Initial load
+        getCatImage();
+
+        // Update cat image every 5 seconds (5000ms)
+        setInterval(getCatImage, 5000);
+    </script>
+
+</body>
+</html>
